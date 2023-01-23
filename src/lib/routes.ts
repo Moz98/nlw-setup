@@ -39,7 +39,6 @@ export async function appRoutes (app: FastifyInstance) {
     
   })
 
-
   app.get('/day',async (request) => {
     const getDayParams = z.object({
       date: z.coerce.date()
@@ -81,5 +80,58 @@ export async function appRoutes (app: FastifyInstance) {
       completedHabits
     }
   })
+
+  app.patch('/habits/:id/toggle', async (request) => {
+    const toggleHabitParams = z.object({
+      id: z.string().uuid()
+    })
+
+    const {id} = toggleHabitParams.parse(request.params);
+
+    const today = dayjs().startOf('day').toDate();
+
+    let day = await prisma.day.findUnique({
+      where: {
+        date: today,
+      }
+    })
+
+    if(!day) {
+      day = await prisma.day.create({
+        data: {
+          date: today,
+        }
+      })
+    }
+
+
+    const dayHabit = await prisma.dayHabit.findUnique({
+      where: {
+        day_id_habit_id: {
+          day_id: day.id,
+          habit_id: id,
+        }
+      }
+    })
+
+    if(dayHabit) {
+      // Remove the completed mark
+      await prisma.dayHabit.delete({
+        where: {
+          id: dayHabit.id,
+        }
+      })
+    } else {
+      // Complete the habit on this day
+      await prisma.dayHabit.create({
+        data: {
+          day_id: day.id,
+          habit_id: id,
+        }
+      })
+    }
+  })
+
+
 
 }
