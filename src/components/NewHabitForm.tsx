@@ -39,7 +39,7 @@ export const NewHabitForm = () => {
       });
     }
     setTitle("");
-    setWeekDays("");
+    setWeekDays([]);
 
     alert("Hábito criado com sucesso !!");
   }
