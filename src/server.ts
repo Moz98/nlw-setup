@@ -13,7 +13,7 @@ app.register(appRoutes)
 
 
 app.listen({
-  port: 5555
+  port: 3333
 }).then(() => {
   console.log('HTTP Server Running...')
 })
